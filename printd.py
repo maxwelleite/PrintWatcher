@@ -63,6 +63,10 @@ def printd(directory,ptime,ext,log, cmd):
                     logging.info("Print error: %d" % ret)
                 else:
                     logging.info("Print seems to have worked (rc=0)")
+                    if os.path.isfile(change[1]):
+                        os.remove(change[1])
+                    else:
+                        print("Error: %s file not found" % change[1])
 
             previous_set = new_set
 
