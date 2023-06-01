@@ -1,0 +1,2 @@
+# Minimum Python version for run PrintWatcher
+python-3.8
