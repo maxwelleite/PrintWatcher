@@ -1,0 +1,19 @@
+[Unit]
+Description=printwatcher
+Documentation=https://github.com/maxwelleite/PrintWatcher
+After=cups.service
+Wants=cups.service
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/printwatcher
+ExecStart=/opt/printwatcher/printd.py --cmd "lp -o media=a4 -s" /opt/printwatcher/_q
+Restart=always
+RestartSec=5s
+ProtectHome=yes
+NoNewPrivileges=yes
+ProtectSystem=full
+SyslogLevel=debug
+
+[Install]
+WantedBy=multi-user.target
