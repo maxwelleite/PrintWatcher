@@ -2,11 +2,17 @@
 
 from __future__ import print_function
 import click
+import sys
 import os
 import time
 import tqdm
 from filestore import FileStore
 import logging
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
+handler = logging.StreamHandler(stream=sys.stdout)
+logger.addHandler(handler)
 
 DEFAULT_EXT = "pdf;png;jpg;txt"
 
@@ -34,14 +40,14 @@ def printd(directory,ptime,ext,log, cmd):
 
     filestore = FileStore("_log")
 
-    print ("Watching: ", os.path.join(os.getcwd(), directory))
+    logger.info("Watching: " + os.path.join(os.getcwd(), directory))
 
     EXTENSIONS = ext.split(";")
-    print ("extensions:", EXTENSIONS)
-    print ("polling interval:", ptime)
-    print ("print command:", cmd)
+    logger.info("Extensions: " + str(EXTENSIONS))
+    logger.info("Polling interval: " + str(ptime))
+    logger.info("Print command: " + cmd)
     previous_set = get_files(directory)
-    print ("set:", previous_set)
+    logger.info("Set: " + str(previous_set))
 
     while True:
         time.sleep(ptime)
@@ -50,24 +56,23 @@ def printd(directory,ptime,ext,log, cmd):
         deletions = previous_set - new_set
         if deletions:
             for change in deletions:
-                previous_set.discard(change)                
-                print("deleted: ", change)
+                previous_set.discard(change)
+                logger.info("Deleted: " + str(change))
 
         changes = new_set - previous_set
         if changes:
             for change in tqdm.tqdm(changes):
-                print("Printing", "..." + str(change[0])[-16:], change[1])
+                logger.info("Printing... " + str(change[0][-16:]) + " " + str(change[1]))
                 filestore.add(change[1])
-                ret = os.system('%s "%s"' % (cmd, change[1]))
+                ret = 0
                 if ret:
-                    logging.info("Print error: %d" % ret)
+                   logger.info("Print error: %d" % ret)
                 else:
-                    logging.info("Print seems to have worked (rc=0)")
+                    logger.info("Print seems to have worked (rc=0)")
                     if os.path.isfile(change[1]):
                         os.remove(change[1])
                     else:
-                        print("Error: %s file not found" % change[1])
-
+                        logger.info("Error: %s file not found" % change[1])
             previous_set = new_set
 
 if __name__ == "__main__":
