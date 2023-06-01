@@ -64,7 +64,7 @@ def printd(directory,ptime,ext,log, cmd):
             for change in tqdm.tqdm(changes):
                 logger.info("Printing... " + str(change[0][-16:]) + " " + str(change[1]))
                 filestore.add(change[1])
-                ret = 0
+                ret = os.system('%s "%s"' % (cmd, change[1]))
                 if ret:
                    logger.info("Print error: %d" % ret)
                 else:
